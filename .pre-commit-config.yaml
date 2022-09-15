@@ -1,0 +1,19 @@
+fail_fast: false
+default_install_hook_types: [pre-commit]
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: format
+        entry: sh -c 'yarn reformat'
+        language: system
+        files: \.(ts)$
+        stages: [commit]
+  - repo: local
+    hooks:
+      - id: lint
+        name: lint
+        entry: sh -c 'yarn lint'
+        language: system
+        files: \.(ts)$
+        stages: [commit]
