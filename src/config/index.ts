@@ -6,6 +6,7 @@ dotenv.config({
 })
 
 export default {
-  env: process.env.NODE_ENV,
+  environment: process.env.ENVIRONMENT,
+  isProduction: process.env.ENVIRONMENT === "production",
   port: process.env.PORT,
 }
