@@ -3,6 +3,7 @@ import express, { Request, Response } from "express"
 import config from "./config"
 import logger from "./features/logger"
 import apiLimiter from "./middleware/rate-limiter"
+import "./db/index"
 
 const app = express()
 
@@ -12,5 +13,4 @@ app.get("/api/v0/test", (_: Request, res: Response) => {
   res.send("hello world")
 })
 
-// eslint-disable-next-line no-console
-app.listen(config.port, () => logger.info(`server listening on port:${config.port}`))
+app.listen(config.port, () => logger.log("info", `server listening on port:${config.port}`))

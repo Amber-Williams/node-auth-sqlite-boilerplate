@@ -9,4 +9,5 @@ export default {
   environment: process.env.ENVIRONMENT,
   isProduction: process.env.ENVIRONMENT === "production",
   port: process.env.PORT,
+  debug: false,
 }
