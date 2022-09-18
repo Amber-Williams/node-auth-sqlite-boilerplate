@@ -1,16 +1,10 @@
-import express, { Request, Response } from "express"
-
+import app from "./app"
 import config from "./config"
 import logger from "./features/logger"
-import apiLimiter from "./middleware/rate-limiter"
 import "./db/index"
 
-const app = express()
-
-app.use("/api", apiLimiter)
-
-app.get("/api/v0/test", (_: Request, res: Response) => {
-  res.send("hello world")
+app.on("ready", () => {
+  app.listen(config.port, () => {
+    logger.log("info", `Server ready - listening on port:${config.port}`)
+  })
 })
-
-app.listen(config.port, () => logger.log("info", `server listening on port:${config.port}`))

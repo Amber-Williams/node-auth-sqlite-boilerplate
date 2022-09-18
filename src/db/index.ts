@@ -4,6 +4,7 @@ import { DataSource } from "typeorm"
 import User from "./models/user"
 import logger from "./../features/logger"
 import config from "./../config"
+import app from "./../app"
 
 const db = new DataSource({
   type: "sqlite",
@@ -14,6 +15,11 @@ const db = new DataSource({
   synchronize: true,
 })
 
-db.initialize().catch(error => logger.log("error", error))
+db.initialize()
+  .then(() => {
+    logger.log("info", "Database connected")
+    app.emit("ready")
+  })
+  .catch(error => logger.log("error", error))
 
 export default db
