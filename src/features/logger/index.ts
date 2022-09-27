@@ -34,7 +34,6 @@ export class Logger implements TypeormLogger {
     const sql = query + (parameters && parameters.length ? " -- PARAMETERS: " + this.stringifyParams(parameters) : "")
     this.log("info", sql)
   }
-  /* eslint-enable  @typescript-eslint/no-explicit-any */
 
   logSchemaBuild(message: string) {
     this.log("log", message)
@@ -67,6 +66,7 @@ export class Logger implements TypeormLogger {
       return parameters
     }
   }
+  /* eslint-enable  @typescript-eslint/no-explicit-any */
 }
 
 const logger = new Logger(pinoLogger)

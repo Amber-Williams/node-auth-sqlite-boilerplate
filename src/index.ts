@@ -1,19 +1,17 @@
-import app from "./app"
-import config from "./config"
+import App from "./app"
 import logger from "./features/logger"
+import IndexRoute from "./routes/index.route"
 import "./db/index"
 
-app.on("ready", () => {
-  const server = app.listen(config.port, () => {
-    logger.log("info", `Server ready - listening on port:${config.port}`)
-  })
-  app.set("server", server)
-})
+const app = new App([new IndexRoute()])
+
+export const serverReady = () => {
+  app.listen()
+}
 
 const exitHandler = () => {
-  const server = app.get("server")
-  if (server) {
-    server.close(() => {
+  if (app.server) {
+    app.server.close(() => {
       logger.log("info", "Server stopped")
       process.exit(1)
     })

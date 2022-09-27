@@ -1,13 +1,47 @@
-import express, { Request, Response } from "express"
+import http from "http"
+import express from "express"
 
-import apiLimiter from "./middleware/rate-limiter"
+import config from "./../src/config"
+import logger from "./../src/features/logger"
+import apiLimiter from "./../src/middleware/rate-limiter.middleware"
+import Routes from "./types/routes.interface"
+import errorMiddleware from "./../src/middleware/error.middleware"
 
-const app = express()
+class App {
+  public app: express.Application
+  public port: string | number
+  public server: http.Server | undefined
 
-app.use("/api", apiLimiter)
+  constructor(routes: Routes[]) {
+    this.app = express()
+    this.port = process.env.PORT || 3000
+    this.server
 
-app.get("/api/v0/test", (_: Request, res: Response) => {
-  res.send("hello world")
-})
+    this.initializeMiddlewares()
+    this.initializeRoutes(routes)
+    this.initializeErrorHandling()
+  }
 
-export default app
+  public listen() {
+    this.server = this.app.listen(this.port, () => {
+      logger.log("info", `Server ready - listening on port:${config.port}`)
+    })
+  }
+
+  private initializeMiddlewares() {
+    this.app.use("/api", apiLimiter)
+    this.app.use(express.json())
+  }
+
+  private initializeRoutes(routes: Routes[]) {
+    routes.forEach(route => {
+      this.app.use("/api", route.router)
+    })
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware)
+  }
+}
+
+export default App
