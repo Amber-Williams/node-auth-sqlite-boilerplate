@@ -1,9 +1,10 @@
 import App from "./app"
 import logger from "./features/logger"
 import IndexRoute from "./routes/index.route"
-import "./db/index"
+import UsersRoute from "./routes/users.route"
+import "./database/index"
 
-const app = new App([new IndexRoute()])
+const app = new App([new IndexRoute(), new UsersRoute()])
 
 export const serverReady = () => {
   app.listen()

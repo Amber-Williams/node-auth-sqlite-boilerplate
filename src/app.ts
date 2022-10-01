@@ -4,7 +4,7 @@ import express from "express"
 import config from "./../src/config"
 import logger from "./../src/features/logger"
 import apiLimiter from "./../src/middleware/rate-limiter.middleware"
-import Routes from "./types/routes.interface"
+import Routes from "./types/routes.type"
 import errorMiddleware from "./../src/middleware/error.middleware"
 
 class App {

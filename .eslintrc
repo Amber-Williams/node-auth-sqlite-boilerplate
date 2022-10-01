@@ -29,6 +29,12 @@
         ],
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "no-console": "error",
-        "curly": "error"
+        "curly": "error",
+        "@typescript-eslint/no-empty-interface": [
+          "error",
+          {
+            "allowSingleExtends": true
+          }
+        ]
       }
 }
