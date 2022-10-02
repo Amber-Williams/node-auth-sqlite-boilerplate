@@ -1,7 +1,7 @@
-import User from "./../models/user.model"
-import { IUserPublic, IUpdateUser, ICreateUser } from "./../types/users.type"
-import HttpException from "./../exceptions/HttpExeption"
-import { isEmpty } from "./../utils"
+import User from "@models/user.model"
+import { IUserPublic, IUpdateUser, ICreateUser } from "@typings/users.type"
+import HttpException from "@exceptions/HttpExeption"
+import { isEmpty } from "@utils"
 
 class UserService {
   public async findAllUser() {

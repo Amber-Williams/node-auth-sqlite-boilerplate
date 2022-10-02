@@ -1,8 +1,7 @@
 import pino, { Logger as PinoLogger } from "pino"
-
-import config from "./../../config"
-
 import { Logger as TypeormLogger } from "typeorm"
+
+import config from "@config"
 
 const pinoLogger = pino({
   level: config.environment === "production" ? "info" : "debug",

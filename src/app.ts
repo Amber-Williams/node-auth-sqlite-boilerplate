@@ -1,11 +1,11 @@
 import http from "http"
 import express from "express"
 
-import config from "./../src/config"
-import logger from "./../src/features/logger"
-import apiLimiter from "./../src/middleware/rate-limiter.middleware"
-import Routes from "./types/routes.type"
-import errorMiddleware from "./../src/middleware/error.middleware"
+import config from "@config"
+import logger from "@logger"
+import apiLimiter from "@middlewares/rate-limiter.middleware"
+import Routes from "@typings/routes.type"
+import errorMiddleware from "@middlewares/error.middleware"
 
 class App {
   public app: express.Application

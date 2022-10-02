@@ -1,10 +1,10 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 
-import User from "../models/user.model"
-import logger from "../features/logger"
-import config from "../config"
-import { serverReady } from "../index"
+import User from "@models/user.model"
+import logger from "@logger"
+import config from "@config"
+import { serverReady } from "@server"
 
 const db = new DataSource({
   type: "sqlite",

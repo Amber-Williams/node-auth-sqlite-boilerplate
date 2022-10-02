@@ -10,8 +10,8 @@ import {
 } from "typeorm"
 import bcrypt from "bcrypt"
 
-import logger from "../features/logger"
-import { IUser } from "src/types/users.type"
+import logger from "@logger"
+import { IUser } from "@typings/users.type"
 
 class RecordEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
@@ -46,6 +46,10 @@ class User extends RecordEntity implements IUser {
     } catch (error) {
       logger.log("error", "Password failed hash")
     }
+  }
+
+  public checkIfPasswordMatch(unencryptedPassword: string) {
+    return bcrypt.compareSync(unencryptedPassword, this.password)
   }
 
   public async update(user: IUser): Promise<User | undefined> {

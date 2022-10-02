@@ -1,8 +1,8 @@
-import App from "./app"
-import logger from "./features/logger"
-import IndexRoute from "./routes/index.route"
-import UsersRoute from "./routes/users.route"
-import "./database/index"
+import App from "@app"
+import logger from "@logger"
+import IndexRoute from "@routes/index.route"
+import UsersRoute from "@routes/users.route"
+import "@database"
 
 const app = new App([new IndexRoute(), new UsersRoute()])
 

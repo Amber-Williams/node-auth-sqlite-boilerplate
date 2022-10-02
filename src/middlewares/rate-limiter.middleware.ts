@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit"
 
-import { formatMinsToMillisec } from "../utils/date"
+import { formatMinsToMillisec } from "@utils/date"
 
 const apiLimiter = rateLimit({
   windowMs: formatMinsToMillisec(10),

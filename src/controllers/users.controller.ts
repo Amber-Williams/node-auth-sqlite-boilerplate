@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 
-import { IUser, ICreateUser, IUserPublic, IUserUpdate } from "./../types/users.type"
-import userService from "./../services/users.service"
+import { IUser, ICreateUser, IUserPublic, IUpdateUser } from "@typings/users.type"
+import userService from "@services/users.service"
 
 class UsersController {
   public userService = new userService()
@@ -41,7 +41,7 @@ class UsersController {
   public updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.params.id
-      const userData: IUserUpdate = req.body
+      const userData: IUpdateUser = req.body
       const updateUserData = await this.userService.updateUser(userId, userData)
 
       res.status(200).json(updateUserData)
