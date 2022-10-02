@@ -3,6 +3,7 @@ export interface IUser {
   email: string
   username: string
   password: string
+  should: "fail"
 }
 
 export type IUserPublic = Pick<IUser, "id" | "email" | "username">
