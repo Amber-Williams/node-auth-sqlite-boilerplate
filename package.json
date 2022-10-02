@@ -16,7 +16,8 @@
     "lint:fix": "eslint . --fix",
     "format": "yarn run prettier:base --check \"**/*.ts\"",
     "reformat": "yarn run prettier:base --write \"**/*.ts\"",
-    "prettier:base": "prettier --parser typescript"
+    "prettier:base": "prettier --parser typescript",
+    "test": "jest --forceExit --detectOpenHandles --verbose"
   },
   "dependencies": {
     "bcrypt": "5.0.1",
@@ -31,14 +32,19 @@
   "devDependencies": {
     "@types/bcrypt": "5.0.0",
     "@types/express": "4.17.13",
+    "@types/jest": "29.1.1",
     "@types/node": "16.11.59",
+    "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
     "eslint": "8.23.1",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
+    "jest": "29.1.2",
     "nodemon": "1.19.4",
     "prettier": "2.4.1",
+    "supertest": "6.2.4",
+    "ts-jest": "29.0.3",
     "ts-node": "10.9.1",
     "tsc-alias": "1.7.0",
     "tsconfig-paths": "^4.1.0",

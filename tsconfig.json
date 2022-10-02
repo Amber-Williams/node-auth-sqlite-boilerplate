@@ -25,6 +25,7 @@
         "@database": ["src/database/index.ts"],
         "@config": ["src/config/index.ts"],
         "@utils": ["src/utils/index.ts"],
+        "@logger": ["src/features/logger/index.ts"],
         "@controllers/*": ["src/controllers/*"],
         "@models/*": ["src/models/*"],
         "@exceptions/*": ["src/exceptions/*"],
@@ -33,9 +34,8 @@
         "@routes/*": ["src/routes/*"],
         "@services/*": ["src/services/*"],
         "@utils/*": ["src/utils/*"],
-        "@logger": ["src/features/logger/index.ts"],
       }
     },
     "exclude": ["dist", "node_modules"],
-    "include": ["src/**/*.ts", "src/**/*.json", ".env"],
+    "include": ["src/**/*.ts", "src/**/*.json", ".env", "jest.config.ts", "tests/**/*.ts"],
 }
