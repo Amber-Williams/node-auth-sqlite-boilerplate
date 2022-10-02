@@ -6,20 +6,32 @@ import logger from "@logger"
 import config from "@config"
 import { serverReady } from "@server"
 
-const db = new DataSource({
-  type: "sqlite",
-  database: "./main.sqlite",
-  entities: [User],
-  logging: true,
-  logger: config.debug ? "advanced-console" : logger,
-  synchronize: true,
-})
+class Database {
+  public database: DataSource
 
-db.initialize()
-  .then(() => {
-    logger.log("info", "Database connected")
-    serverReady()
-  })
-  .catch(error => logger.log("error", error))
+  constructor() {
+    this.database = new DataSource({
+      type: "sqlite",
+      database: `./main.${config.environment}.sqlite`,
+      entities: [User],
+      logging: true,
+      logger: config.debug ? "advanced-console" : logger,
+      synchronize: true,
+    })
+  }
 
-export default db
+  public async initialize() {
+    return this.database
+      .initialize()
+      .then(() => {
+        logger.log("info", "Database connected")
+        serverReady()
+      })
+      .catch(error => logger.log("error", error))
+  }
+}
+
+const database = new Database()
+database.initialize()
+
+export default database

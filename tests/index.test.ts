@@ -5,7 +5,7 @@ import IndexRoute from "@routes/index.route"
 
 describe("Testing Index routes", () => {
   describe("[GET] /api/", () => {
-    it("response statusCode 200", () => {
+    it("happy path", () => {
       const indexRoute = new IndexRoute()
       const app = new App([indexRoute])
 

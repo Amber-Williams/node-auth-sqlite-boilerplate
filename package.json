@@ -17,7 +17,7 @@
     "format": "yarn run prettier:base --check \"**/*.ts\"",
     "reformat": "yarn run prettier:base --write \"**/*.ts\"",
     "prettier:base": "prettier --parser typescript",
-    "test": "jest --forceExit --detectOpenHandles --verbose"
+    "test": "ENVIRONMENT=test jest --forceExit --detectOpenHandles --verbose"
   },
   "dependencies": {
     "bcrypt": "5.0.1",
