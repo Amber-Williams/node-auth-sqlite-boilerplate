@@ -1,0 +1,43 @@
+name: PR Checks
+on: [pull_request]
+
+jobs:
+  app-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["16.14.2"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install project dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Run checks
+        run: |
+          yarn format
+          yarn lint
+          yarn build
+
+  app-test:
+    needs: app-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["16.14.2"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Run tests
+        run: yarn test;
