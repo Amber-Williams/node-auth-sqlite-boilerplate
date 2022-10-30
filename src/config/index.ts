@@ -10,4 +10,9 @@ export default {
   isProduction: process.env.ENVIRONMENT === "production",
   port: process.env.PORT,
   debug: false,
+  auth: {
+    jwtSecret: process.env.JWT_SECRET,
+    accessTokenExpiry: "1 hour",
+    refreshTokenExpiry: "7 days",
+  },
 }

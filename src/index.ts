@@ -2,9 +2,10 @@ import App from "@app"
 import logger from "@logger"
 import IndexRoute from "@routes/index.route"
 import UsersRoute from "@routes/users.route"
+import AuthRoute from "@routes/auth.route"
 import "@database"
 
-const app = new App([new IndexRoute(), new UsersRoute()])
+const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute()])
 
 export const serverReady = () => {
   app.listen()
