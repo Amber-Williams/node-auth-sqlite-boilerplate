@@ -48,8 +48,8 @@ class User extends RecordEntity implements IUser {
     }
   }
 
-  public checkIfPasswordMatch(unencryptedPassword: string) {
-    return bcrypt.compareSync(unencryptedPassword, this.password)
+  public checkIfPasswordMatch(unencryptedPassword: string, password: string): boolean {
+    return bcrypt.compareSync(unencryptedPassword, password)
   }
 
   public async update(user: IUser): Promise<User | undefined> {

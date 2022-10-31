@@ -14,6 +14,7 @@ class UsersRoute implements Route {
 
   private initializeRoutes() {
     this.router.post(`${this.path}/register`, this.authController.register)
+    this.router.post(`${this.path}/login`, this.authController.login)
   }
 }
 
