@@ -7,10 +7,10 @@ import config from "@config"
 import { serverReady } from "@server"
 
 class Database {
-  public database: DataSource
+  public dataSource: DataSource
 
   constructor() {
-    this.database = new DataSource({
+    this.dataSource = new DataSource({
       type: "sqlite",
       database: `./main.${config.environment}.sqlite`,
       entities: [User],
@@ -21,7 +21,7 @@ class Database {
   }
 
   public async initialize() {
-    return this.database
+    return this.dataSource
       .initialize()
       .then(() => {
         logger.log("info", "Database connected")

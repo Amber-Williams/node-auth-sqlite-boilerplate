@@ -12,7 +12,13 @@ export default {
   debug: false,
   auth: {
     jwtSecret: process.env.JWT_SECRET,
-    accessTokenExpiry: "1 hour",
-    refreshTokenExpiry: "7 days",
+    accessTokenExpiry: {
+      unit: "hour",
+      amount: 1,
+    },
+    refreshTokenExpiry: {
+      unit: "day",
+      amount: 7,
+    },
   },
 }
