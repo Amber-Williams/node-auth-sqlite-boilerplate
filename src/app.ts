@@ -20,7 +20,6 @@ class App {
 
     this.initializeMiddlewares()
     this.initializeRoutes(routes)
-    this.initializeErrorHandling()
   }
 
   public listen() {
@@ -30,6 +29,7 @@ class App {
   }
 
   private initializeMiddlewares() {
+    this.app.use(errorMiddleware)
     this.app.use(express.json())
     this.app.use(cookieParser())
     this.app.use("/api", apiLimiter)
@@ -39,10 +39,6 @@ class App {
     routes.forEach(route => {
       this.app.use("/api", route.router)
     })
-  }
-
-  private initializeErrorHandling() {
-    this.app.use(errorMiddleware)
   }
 }
 

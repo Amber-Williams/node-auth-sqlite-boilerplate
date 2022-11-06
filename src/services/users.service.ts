@@ -1,6 +1,6 @@
 import User from "@models/user.model"
 import { IUserPublic, IUpdateUser, ICreateUser } from "@typings/users.type"
-import HttpException from "@exceptions/HttpExeption"
+import { HTTP400Error, HTTP404Error, HTTP409Error, HTTP500Error } from "@exceptions"
 import { isEmpty } from "@utils"
 
 class UserService {
@@ -11,12 +11,12 @@ class UserService {
 
   public async findUserById(userId: string) {
     if (isEmpty(userId)) {
-      throw new HttpException(400, "Invalid data")
+      throw new HTTP400Error()
     }
 
     const user = await User.findOne({ where: { id: userId } })
     if (!user) {
-      throw new HttpException(404, "User doesn't exist")
+      throw new HTTP404Error()
     }
 
     return user
@@ -24,11 +24,11 @@ class UserService {
 
   public async createUser(userData: ICreateUser) {
     if (isEmpty(userData)) {
-      throw new HttpException(400, "Invalid data")
+      throw new HTTP400Error()
     }
     const user = await User.findOne({ where: { email: userData.email } })
     if (user) {
-      throw new HttpException(409, "Email already exists")
+      throw new HTTP409Error()
     }
 
     const createUserData: Partial<User> = await User.create<User>(userData).save()
@@ -39,17 +39,17 @@ class UserService {
 
   public async updateUser(userId: string, userData: IUpdateUser) {
     if (isEmpty(userData)) {
-      throw new HttpException(400, "Invalid data")
+      throw new HTTP400Error()
     }
 
     const user = await User.findOne({ where: { id: userId } })
     if (!user) {
-      throw new HttpException(404, "User doesn't exist")
+      throw new HTTP404Error()
     }
 
     const updatedUser = (await user.update({ ...userData, id: userId })) as undefined | Partial<User>
     if (!updatedUser) {
-      throw new HttpException(500, "Something went wrong")
+      throw new HTTP500Error(500)
     }
     delete updatedUser.password
 
@@ -58,12 +58,12 @@ class UserService {
 
   public async deleteUser(userId: string) {
     if (isEmpty(userId)) {
-      throw new HttpException(400, "Invalid data")
+      throw new HTTP400Error()
     }
 
     const user = await User.findOne({ where: { id: userId } })
     if (!user) {
-      throw new HttpException(404, "User doesn't exist")
+      throw new HTTP404Error()
     }
 
     await User.delete({ id: userId })
