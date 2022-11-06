@@ -2,7 +2,7 @@ import User from "@models/user.model"
 import { IUserPublic, IUpdateUser, ICreateUser } from "@typings/users.type"
 import HttpException from "@exceptions/HttpExeption"
 import { isEmpty } from "@utils"
-import database from "@database"
+
 class UserService {
   public async findAllUser() {
     const users = await User.find()
@@ -67,24 +67,6 @@ class UserService {
     }
 
     await User.delete({ id: userId })
-    return user
-  }
-  public async getUserIfPasswordMatch(email: string, password: string) {
-    if (isEmpty(email)) {
-      throw new HttpException(400, "Invalid data")
-    }
-
-    const userRepository = database.dataSource.getRepository(User)
-    const user = await userRepository
-      .createQueryBuilder("user")
-      .addSelect("user.password")
-      .where("user.email = :email", { email: email })
-      .getOne()
-
-    if (!user || !user.checkIfPasswordMatch(password, user.password)) {
-      throw new HttpException(401, "Unauthorized")
-    }
-
     return user
   }
 }
