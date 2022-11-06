@@ -10,6 +10,39 @@ class AuthController {
   public userService = new UserService()
   public authService = new AuthService()
 
+  private addTokensToResponse = (res: Response, accessToken: string, refreshToken?: string) => {
+    res.cookie("aid", accessToken, {
+      httpOnly: true,
+      secure: true,
+      expires: dayjs()
+        .add(config.auth.accessTokenExpiry.amount, config.auth.accessTokenExpiry.unit as ManipulateType)
+        .toDate(),
+    })
+
+    if (refreshToken) {
+      res.cookie("rid", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        expires: dayjs()
+          .add(config.auth.refreshTokenExpiry.amount, config.auth.refreshTokenExpiry.unit as ManipulateType)
+          .toDate(),
+      })
+    }
+    return res
+  }
+
+  private removeTokens = (res: Response, tokenNames: string[]) => {
+    for (const token of tokenNames) {
+      res.cookie(token, "", {
+        httpOnly: true,
+        secure: true,
+        expires: dayjs().toDate(),
+      })
+    }
+
+    return res
+  }
+
   public register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userData: ICreateUser = req.body
@@ -18,20 +51,7 @@ class AuthController {
         userId: user.id,
         username: user.username,
       })
-      res.cookie("aid", accessToken, {
-        httpOnly: true,
-        secure: true,
-        expires: dayjs()
-          .add(config.auth.accessTokenExpiry.amount, config.auth.accessTokenExpiry.unit as ManipulateType)
-          .toDate(),
-      })
-      res.cookie("rid", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        expires: dayjs()
-          .add(config.auth.refreshTokenExpiry.amount, config.auth.refreshTokenExpiry.unit as ManipulateType)
-          .toDate(),
-      })
+      res = this.addTokensToResponse(res, accessToken, refreshToken)
       res.sendStatus(201)
     } catch (error) {
       next(error)
@@ -46,23 +66,17 @@ class AuthController {
         userId: user.id,
         username: user.username,
       })
-
-      res.cookie("aid", accessToken, {
-        httpOnly: true,
-        secure: true,
-        expires: dayjs()
-          .add(config.auth.accessTokenExpiry.amount, config.auth.accessTokenExpiry.unit as ManipulateType)
-          .toDate(),
-      })
-      res.cookie("rid", refreshToken, {
-        httpOnly: true,
-        secure: true,
-        expires: dayjs()
-          .add(config.auth.refreshTokenExpiry.amount, config.auth.refreshTokenExpiry.unit as ManipulateType)
-          .toDate(),
-      })
-
+      res = this.addTokensToResponse(res, accessToken, refreshToken)
       res.sendStatus(200)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public logout = (_: Request, res: Response, next: NextFunction) => {
+    try {
+      res = this.removeTokens(res, ["rid", "aid"])
+      res.status(200).send()
     } catch (error) {
       next(error)
     }
