@@ -1,5 +1,6 @@
 import http from "http"
 import express from "express"
+import cookieParser from "cookie-parser"
 
 import config from "@config"
 import logger from "@logger"
@@ -29,8 +30,9 @@ class App {
   }
 
   private initializeMiddlewares() {
-    this.app.use("/api", apiLimiter)
     this.app.use(express.json())
+    this.app.use(cookieParser())
+    this.app.use("/api", apiLimiter)
   }
 
   private initializeRoutes(routes: Routes[]) {

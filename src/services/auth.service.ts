@@ -35,16 +35,9 @@ class AuthService {
     }
   }
 
-  public refreshToken = (refreshToken: string, payload: { [key: string]: string }) => {
-    // also verifies payload
+  public verifyRefreshToken = (refreshToken: string) => {
     try {
-      const verified = jwt.verify(refreshToken, config.auth.jwtSecret)
-      if (verified) {
-        const accessToken = this.createAccessToken(payload)
-        return accessToken
-      } else {
-        throw new Error("Invalid refresh token")
-      }
+      return Boolean(jwt.verify(refreshToken, config.auth.jwtSecret, { complete: false }))
     } catch {
       return false
     }

@@ -49,7 +49,6 @@ class AuthController {
       const user: IUserPublic = await this.userService.createUser(userData)
       const { accessToken, refreshToken } = this.authService.createAuthTokens({
         userId: user.id,
-        username: user.username,
       })
       res = this.addTokensToResponse(res, accessToken, refreshToken)
       res.sendStatus(201)
@@ -64,7 +63,6 @@ class AuthController {
       const user = await this.userService.getUserIfPasswordMatch(email, password)
       const { accessToken, refreshToken } = this.authService.createAuthTokens({
         userId: user.id,
-        username: user.username,
       })
       res = this.addTokensToResponse(res, accessToken, refreshToken)
       res.sendStatus(200)
@@ -76,6 +74,24 @@ class AuthController {
   public logout = (_: Request, res: Response, next: NextFunction) => {
     try {
       res = this.removeTokens(res, ["rid", "aid"])
+      res.status(200).send()
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public refreshAccessToken = (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const validRefreshToken = this.authService.verifyRefreshToken(req.cookies.rid)
+      if (!validRefreshToken) {
+        throw new Error("Invalid refresh token")
+      }
+
+      const { userId } = req.body
+      const { accessToken } = this.authService.createAuthTokens({
+        userId,
+      })
+      res = this.addTokensToResponse(res, accessToken)
       res.status(200).send()
     } catch (error) {
       next(error)
