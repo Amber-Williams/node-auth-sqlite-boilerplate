@@ -10,7 +10,7 @@ class AuthController {
   public userService = new UserService()
   public authService = new AuthService()
 
-  private addTokensToResponse = (res: Response, accessToken: string, refreshToken?: string) => {
+  private addTokensToResponse = (res: Response, accessToken: string, idToken?: string, refreshToken?: string) => {
     res.cookie("aid", accessToken, {
       httpOnly: true,
       secure: true,
@@ -18,6 +18,16 @@ class AuthController {
         .add(config.auth.accessTokenExpiry.amount, config.auth.accessTokenExpiry.unit as ManipulateType)
         .toDate(),
     })
+
+    if (idToken) {
+      res.cookie("iid", idToken, {
+        httpOnly: true,
+        secure: true,
+        expires: dayjs()
+          .add(config.auth.refreshTokenExpiry.amount, config.auth.refreshTokenExpiry.unit as ManipulateType)
+          .toDate(),
+      })
+    }
 
     if (refreshToken) {
       res.cookie("rid", refreshToken, {
@@ -47,10 +57,12 @@ class AuthController {
     try {
       const userData: ICreateUser = req.body
       const user: IUserPublic = await this.userService.createUser(userData)
-      const { accessToken, refreshToken } = this.authService.createAuthTokens({
-        userId: user.id,
+      const { accessToken, refreshToken, idToken } = this.authService.createAuthTokens({
+        id: user.id,
+        username: user.username,
+        email: user.email,
       })
-      res = this.addTokensToResponse(res, accessToken, refreshToken)
+      res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(201)
     } catch (error) {
       next(error)
@@ -60,11 +72,13 @@ class AuthController {
   public login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { email, password } = req.body
-      const user = await this.userService.getUserIfPasswordMatch(email, password)
-      const { accessToken, refreshToken } = this.authService.createAuthTokens({
-        userId: user.id,
+      const user = await this.authService.getUserIfPasswordMatch(email, password)
+      const { accessToken, refreshToken, idToken } = this.authService.createAuthTokens({
+        id: user.id,
+        username: user.username,
+        email: user.email,
       })
-      res = this.addTokensToResponse(res, accessToken, refreshToken)
+      res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(200)
     } catch (error) {
       next(error)
@@ -73,8 +87,8 @@ class AuthController {
 
   public logout = (_: Request, res: Response, next: NextFunction) => {
     try {
-      res = this.removeTokens(res, ["rid", "aid"])
-      res.status(200).send()
+      res = this.removeTokens(res, ["rid", "aid", "iid"])
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
@@ -87,12 +101,31 @@ class AuthController {
         throw new Error("Invalid refresh token")
       }
 
-      const { userId } = req.body
-      const { accessToken } = this.authService.createAuthTokens({
-        userId,
-      })
+      const user = this.authService.getUserTokenPayload(req.cookies.iid)
+      if (!user) {
+        throw new Error("Invalid id token")
+      }
+
+      const accessToken = this.authService.createAccessToken()
       res = this.addTokensToResponse(res, accessToken)
-      res.status(200).send()
+      res.sendStatus(200)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const idTokenPayload = this.authService.getUserTokenPayload(req.cookies.iid)
+      if (!idTokenPayload) {
+        throw new Error("No user found")
+      }
+
+      const { currentPassword, newPassword } = req.body
+      const user = await this.authService.getUserIfPasswordMatch(idTokenPayload.email, currentPassword)
+      user.update({ ...user, password: newPassword })
+
+      res.sendStatus(200)
     } catch (error) {
       next(error)
     }
