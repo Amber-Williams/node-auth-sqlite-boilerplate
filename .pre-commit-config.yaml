@@ -17,3 +17,11 @@ repos:
         language: system
         files: \.(ts)$
         stages: [commit]
+  - repo: local
+    hooks:
+      - id: test api
+        name: test api
+        entry: sh -c 'yarn test'
+        language: system
+        files: \.(ts)$
+        stages: [commit]
