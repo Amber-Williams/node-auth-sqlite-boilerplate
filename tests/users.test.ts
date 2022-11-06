@@ -16,7 +16,7 @@ describe("Testing Users routes", () => {
       }
 
       const usersRoute = new UserRoute()
-      const userRepository = database.database.getRepository(User)
+      const userRepository = database.dataSource.getRepository(User)
 
       userRepository.findOne = jest.fn().mockReturnValue(null)
       userRepository.save = jest.fn().mockReturnValue({
@@ -34,7 +34,7 @@ describe("Testing Users routes", () => {
   describe("Get all users - [GET] /api/users", () => {
     it("happy path", async () => {
       const usersRoute = new UserRoute()
-      const userRepository = database.database.getRepository(User)
+      const userRepository = database.dataSource.getRepository(User)
 
       userRepository.find = jest.fn().mockReturnValue([
         {
@@ -67,7 +67,7 @@ describe("Testing Users routes", () => {
       const userId = 1
 
       const usersRoute = new UserRoute()
-      const userRepository = database.database.getRepository(User)
+      const userRepository = database.dataSource.getRepository(User)
 
       userRepository.findOne = jest.fn().mockReturnValue({
         id: userId,
@@ -97,7 +97,7 @@ describe("Testing Users routes", () => {
         raw: [],
         affected: 1,
       })
-      const userRepository = database.database.getRepository(mockedUserEntity)
+      const userRepository = database.dataSource.getRepository(mockedUserEntity)
 
       userRepository.findOne = jest.fn().mockReturnValue({
         id: userId,
@@ -122,7 +122,7 @@ describe("Testing Users routes", () => {
       const userId = 1
 
       const usersRoute = new UserRoute()
-      const userRepository = database.database.getRepository(User)
+      const userRepository = database.dataSource.getRepository(User)
 
       userRepository.findOne = jest.fn().mockReturnValue({
         id: userId,
