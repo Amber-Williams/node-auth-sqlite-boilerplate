@@ -2,7 +2,7 @@ import * as jwt from "jsonwebtoken"
 
 import config from "@config"
 import User from "@models/user.model"
-import HttpException from "@exceptions/HttpExeption"
+import { HTTP400Error, HTTP401Error } from "@exceptions"
 import { isEmpty } from "@utils"
 import database from "@database"
 
@@ -59,7 +59,7 @@ class AuthService {
 
   public getUserIfPasswordMatch = async (email: string, password: string) => {
     if (isEmpty(email)) {
-      throw new HttpException(400, "Invalid data")
+      throw new HTTP400Error()
     }
 
     const userRepository = database.dataSource.getRepository(User)
@@ -70,7 +70,7 @@ class AuthService {
       .getOne()
 
     if (!user || !user.checkIfPasswordMatch(password, user.password)) {
-      throw new HttpException(401, "Unauthorized")
+      throw new HTTP401Error()
     }
 
     return user

@@ -29,6 +29,7 @@
         "@controllers/*": ["src/controllers/*"],
         "@models/*": ["src/models/*"],
         "@exceptions/*": ["src/exceptions/*"],
+        "@exceptions": ["src/exceptions/index.ts"],
         "@typings/*": ["src/typings/*"],
         "@middlewares/*": ["src/middlewares/*"],
         "@routes/*": ["src/routes/*"],
