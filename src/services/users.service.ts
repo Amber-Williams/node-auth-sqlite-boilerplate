@@ -47,7 +47,7 @@ class UserService {
       throw new HTTP404Error()
     }
 
-    const updatedUser = (await user.update({ ...userData, id: userId })) as undefined | Partial<User>
+    const updatedUser = (await user.update({ ...user, ...userData })) as undefined | Partial<User>
     if (!updatedUser) {
       throw new HTTP500Error(500)
     }
