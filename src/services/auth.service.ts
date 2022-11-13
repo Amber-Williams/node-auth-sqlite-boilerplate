@@ -5,7 +5,7 @@ import User from "@models/user.model"
 import { HTTP400Error, HTTP401Error } from "@exceptions"
 import { isEmpty } from "@utils"
 import database from "@database"
-import { Roles } from "@typings/users.type"
+import { Roles, IUser } from "@typings/users.type"
 
 class AuthService {
   private getScopes(role: Roles): Array<string> {
@@ -41,7 +41,7 @@ class AuthService {
     return accessToken
   }
 
-  public createAuthTokens({ id, username, email, role }: { id: string; username: string; email: string; role: Roles }) {
+  public createAuthTokens({ id, username, email, role }: IUser) {
     const refreshToken = this.createRefreshToken()
     const accessToken = this.createAccessToken(role)
     const idToken = this.createIdToken({ id, username, email })
