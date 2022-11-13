@@ -63,6 +63,7 @@ class AuthController {
         email: user.email,
         role: user.role,
       } as IUser)
+
       res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(201)
     } catch (error) {
@@ -72,7 +73,9 @@ class AuthController {
 
   public login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { email, password } = req.body
+      const b64auth = (req.headers.authorization || "").split(" ")[1] || ""
+      const [email, password] = Buffer.from(b64auth, "base64").toString().split(":")
+
       const user = await this.authService.getUserIfPasswordMatch(email, password)
       const { accessToken, refreshToken, idToken } = this.authService.createAuthTokens({
         id: user.id,
@@ -81,6 +84,7 @@ class AuthController {
         role: user.role,
       } as IUser)
       res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
+
       res.sendStatus(200)
     } catch (error) {
       next(error)

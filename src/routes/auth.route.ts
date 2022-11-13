@@ -15,7 +15,7 @@ class AuthRoute implements Route {
 
   private initializeRoutes() {
     this.router.post(`${this.path}/register`, this.authController.register)
-    this.router.post(`${this.path}/login`, this.authController.login)
+    this.router.get(`${this.path}/login`, this.authController.login)
     this.router.get(`${this.path}/logout`, this.authController.logout)
     this.router.get(`${this.path}/refresh`, [blockInvalidScope("auth")], this.authController.refreshAccessToken)
     this.router.post(`${this.path}/reset-password`, [blockInvalidScope("auth")], this.authController.resetPassword)
