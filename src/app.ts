@@ -4,9 +4,10 @@ import cookieParser from "cookie-parser"
 
 import config from "@config"
 import logger from "@logger"
-import apiLimiter from "@middlewares/rate-limiter.middleware"
 import Routes from "@typings/routes.type"
+import apiLimiterMiddleware from "@middlewares/rate-limiter.middleware"
 import errorMiddleware from "@middlewares/error.middleware"
+import attachCookiesMiddleware from "@middlewares/cookies.middleware"
 
 class App {
   public app: express.Application
@@ -32,7 +33,8 @@ class App {
     this.app.use(errorMiddleware)
     this.app.use(express.json())
     this.app.use(cookieParser())
-    this.app.use("/api", apiLimiter)
+    this.app.use("/api", apiLimiterMiddleware)
+    this.app.use(attachCookiesMiddleware)
   }
 
   private initializeRoutes(routes: Routes[]) {

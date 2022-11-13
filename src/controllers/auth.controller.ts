@@ -12,8 +12,8 @@ class AuthController {
 
   private addTokensToResponse = (res: Response, accessToken: string, idToken?: string, refreshToken?: string) => {
     res.cookie("aid", accessToken, {
-      httpOnly: true,
-      secure: true,
+      httpOnly: config.isProduction,
+      secure: config.isProduction,
       expires: dayjs()
         .add(config.auth.accessTokenExpiry.amount, config.auth.accessTokenExpiry.unit as ManipulateType)
         .toDate(),
@@ -21,8 +21,8 @@ class AuthController {
 
     if (idToken) {
       res.cookie("iid", idToken, {
-        httpOnly: true,
-        secure: true,
+        httpOnly: config.isProduction,
+        secure: config.isProduction,
         expires: dayjs()
           .add(config.auth.refreshTokenExpiry.amount, config.auth.refreshTokenExpiry.unit as ManipulateType)
           .toDate(),
@@ -31,8 +31,8 @@ class AuthController {
 
     if (refreshToken) {
       res.cookie("rid", refreshToken, {
-        httpOnly: true,
-        secure: true,
+        httpOnly: config.isProduction,
+        secure: config.isProduction,
         expires: dayjs()
           .add(config.auth.refreshTokenExpiry.amount, config.auth.refreshTokenExpiry.unit as ManipulateType)
           .toDate(),
@@ -44,8 +44,8 @@ class AuthController {
   private removeTokens = (res: Response, tokenNames: string[]) => {
     for (const token of tokenNames) {
       res.cookie(token, "", {
-        httpOnly: true,
-        secure: true,
+        httpOnly: config.isProduction,
+        secure: config.isProduction,
         expires: dayjs().toDate(),
       })
     }
@@ -61,6 +61,7 @@ class AuthController {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       })
       res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(201)
@@ -77,6 +78,7 @@ class AuthController {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role,
       })
       res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(200)
@@ -94,19 +96,24 @@ class AuthController {
     }
   }
 
-  public refreshAccessToken = (req: Request, res: Response, next: NextFunction) => {
+  public refreshAccessToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validRefreshToken = this.authService.verifyRefreshToken(req.cookies.rid)
       if (!validRefreshToken) {
         throw new Error("Invalid refresh token")
       }
 
-      const user = this.authService.getUserTokenPayload(req.cookies.iid)
-      if (!user) {
+      const userTokenPayload = this.authService.getUserTokenPayload(req.cookies.iid)
+      if (!userTokenPayload) {
         throw new Error("Invalid id token")
       }
 
-      const accessToken = this.authService.createAccessToken()
+      const user = await this.userService.findUserById(userTokenPayload.id)
+      if (!userTokenPayload) {
+        throw new Error("No user found")
+      }
+
+      const accessToken = this.authService.createAccessToken(user.role)
       res = this.addTokensToResponse(res, accessToken)
       res.sendStatus(200)
     } catch (error) {

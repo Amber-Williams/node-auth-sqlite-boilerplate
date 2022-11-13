@@ -1,35 +1,17 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  BaseEntity,
-  BeforeUpdate,
-  BeforeInsert,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm"
+import { Entity, Column, BeforeUpdate, BeforeInsert } from "typeorm"
 import bcrypt from "bcrypt"
 
 import logger from "@logger"
-import { IUser } from "@typings/users.type"
-
-class RecordEntity extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
-  public id: string
-
-  @Column({ select: false })
-  @CreateDateColumn()
-  createdAt: Date
-
-  @Column()
-  @UpdateDateColumn()
-  updatedAt: Date
-}
+import { IUser, Roles } from "@typings/users.type"
+import Record from "@models/record.model"
 
 @Entity("users")
-class User extends RecordEntity implements IUser {
+class User extends Record implements IUser {
   @Column({ unique: true })
   public email: string
+
+  @Column("text", { default: Roles.User })
+  public role: Roles
 
   @Column({ unique: true })
   public username: string

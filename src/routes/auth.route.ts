@@ -2,6 +2,7 @@ import { Router } from "express"
 
 import AuthController from "@controllers/auth.controller"
 import Route from "@typings/routes.type"
+import { blockInvalidScope } from "@middlewares/scope.middleware"
 
 class AuthRoute implements Route {
   public path = "/auth"
@@ -16,8 +17,8 @@ class AuthRoute implements Route {
     this.router.post(`${this.path}/register`, this.authController.register)
     this.router.post(`${this.path}/login`, this.authController.login)
     this.router.get(`${this.path}/logout`, this.authController.logout)
-    this.router.get(`${this.path}/refresh`, this.authController.refreshAccessToken)
-    this.router.post(`${this.path}/reset-password`, this.authController.resetPassword)
+    this.router.get(`${this.path}/refresh`, [blockInvalidScope("auth")], this.authController.refreshAccessToken)
+    this.router.post(`${this.path}/reset-password`, [blockInvalidScope("auth")], this.authController.resetPassword)
   }
 }
 
