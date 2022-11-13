@@ -1,65 +1,41 @@
-import { NextFunction, Request, Response } from "express"
+import { Request, Response } from "express"
 
 import { IUser, ICreateUser, IUserPublic, IUpdateUser } from "@typings/users.type"
 import userService from "@services/users.service"
+import catchAsync from "@utils/catchAsync"
 
 class UsersController {
   public userService = new userService()
 
-  public getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const users: IUser[] = await this.userService.findAllUser()
+  public getUsers = catchAsync(async (req: Request, res: Response) => {
+    const users: IUser[] = await this.userService.findAllUser()
+    res.status(200).json(users)
+  })
 
-      res.status(200).json(users)
-    } catch (error) {
-      next(error)
-    }
-  }
+  public getUserById = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.params.id
+    const user: IUser = await this.userService.findUserById(userId)
+    res.status(200).json(user)
+  })
 
-  public getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = req.params.id
-      const user: IUser = await this.userService.findUserById(userId)
+  public createUser = catchAsync(async (req: Request, res: Response) => {
+    const userData: ICreateUser = req.body
+    const createUserData: IUserPublic = await this.userService.createUser(userData)
+    res.status(201).json(createUserData)
+  })
 
-      res.status(200).json(user)
-    } catch (error) {
-      next(error)
-    }
-  }
+  public updateUser = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.params.id
+    const userData: IUpdateUser = req.body
+    const updateUserData = await this.userService.updateUser(userId, userData)
+    res.status(200).json(updateUserData)
+  })
 
-  public createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userData: ICreateUser = req.body
-      const createUserData: IUserPublic = await this.userService.createUser(userData)
-
-      res.status(201).json(createUserData)
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  public updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = req.params.id
-      const userData: IUpdateUser = req.body
-      const updateUserData = await this.userService.updateUser(userId, userData)
-
-      res.status(200).json(updateUserData)
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  public deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = req.params.id
-      const deleteUserData: IUser = await this.userService.deleteUser(userId)
-
-      res.status(200).json(deleteUserData)
-    } catch (error) {
-      next(error)
-    }
-  }
+  public deleteUser = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.params.id
+    const deleteUserData: IUser = await this.userService.deleteUser(userId)
+    res.status(200).json(deleteUserData)
+  })
 }
 
 export default UsersController

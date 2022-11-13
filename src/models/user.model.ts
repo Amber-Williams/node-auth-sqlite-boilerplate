@@ -27,6 +27,7 @@ class User extends Record implements IUser {
       this.password = hashedPassword
     } catch (error) {
       logger.log("error", "Password failed hash")
+      throw new Error()
     }
   }
 
