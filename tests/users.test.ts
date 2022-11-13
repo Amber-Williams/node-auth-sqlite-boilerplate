@@ -1,33 +1,51 @@
 import bcrypt from "bcrypt"
 import request from "supertest"
+
 import App from "@app"
-import { ICreateUser } from "@typings/users.type"
+import { ICreateUser, Roles, IUser } from "@typings/users.type"
 import User from "@models/user.model"
 import UserRoute from "@routes/users.route"
 import database from "@database"
+import AuthService from "@services/auth.service"
+
+const userData: ICreateUser = {
+  email: "test@email.com",
+  password: "q1w2e3r4!",
+  username: "tester",
+}
+
+const getMockedUser = async () => {
+  return {
+    id: "1",
+    email: userData.email,
+    password: await bcrypt.hash(userData.password, 10),
+    username: userData.username,
+    role: "admin" as Roles,
+  }
+}
+
+const getAdminCookies = (user: IUser) => {
+  const authService = new AuthService()
+  const { accessToken, refreshToken, idToken } = authService.createAuthTokens(user)
+  return [`rid=${refreshToken};aid=${accessToken};id=${idToken};`]
+}
 
 describe("Testing Users routes", () => {
   describe("Create user - [POST] /api/users", () => {
     it("happy path", async () => {
-      const userData: ICreateUser = {
-        email: "test@email.com",
-        password: "q1w2e3r4!",
-        username: "tester",
-      }
-
       const usersRoute = new UserRoute()
       const userRepository = database.dataSource.getRepository(User)
+      const mockedUser = await getMockedUser()
 
       userRepository.findOne = jest.fn().mockReturnValue(null)
-      userRepository.save = jest.fn().mockReturnValue({
-        id: 1,
-        email: userData.email,
-        password: await bcrypt.hash(userData.password, 10),
-        username: userData.username,
-      })
+      userRepository.save = jest.fn().mockReturnValue(mockedUser)
 
       const app = new App([usersRoute])
-      return request(app.app).post(`/api${usersRoute.path}`).send(userData).expect(201)
+      return request(app.app)
+        .post(`/api${usersRoute.path}`)
+        .set("Cookie", getAdminCookies(mockedUser))
+        .send(userData)
+        .expect(201)
     })
   })
 
@@ -35,6 +53,7 @@ describe("Testing Users routes", () => {
     it("happy path", async () => {
       const usersRoute = new UserRoute()
       const userRepository = database.dataSource.getRepository(User)
+      const mockedUser = await getMockedUser()
 
       userRepository.find = jest.fn().mockReturnValue([
         {
@@ -58,16 +77,16 @@ describe("Testing Users routes", () => {
       ])
 
       const app = new App([usersRoute])
-      return request(app.app).get(`/api${usersRoute.path}`).expect(200)
+      return request(app.app).get(`/api${usersRoute.path}`).set("Cookie", getAdminCookies(mockedUser)).expect(200)
     })
   })
 
   describe("Get one user - [GET] /api/users/:id", () => {
     it("happy path", async () => {
       const userId = 1
-
       const usersRoute = new UserRoute()
       const userRepository = database.dataSource.getRepository(User)
+      const mockedUser = await getMockedUser()
 
       userRepository.findOne = jest.fn().mockReturnValue({
         id: userId,
@@ -77,7 +96,7 @@ describe("Testing Users routes", () => {
       })
 
       const app = new App([usersRoute])
-      return request(app.app).get(`/api${usersRoute.path}/${userId}`).expect(200)
+      return request(app.app).get(`/api${usersRoute.path}/${userId}`).set("Cookie", getAdminCookies(mockedUser)).expect(200)
     })
   })
 
@@ -89,9 +108,10 @@ describe("Testing Users routes", () => {
         password: "1q2w3e4r!",
         username: "test",
       }
-
+      const mockedUser = await getMockedUser()
       const usersRoute = new UserRoute()
       const mockedUserEntity = User
+
       mockedUserEntity.update = jest.fn().mockReturnValue({
         generatedMaps: [],
         raw: [],
@@ -113,16 +133,20 @@ describe("Testing Users routes", () => {
       })
 
       const app = new App([usersRoute])
-      return request(app.app).put(`/api${usersRoute.path}/${userId}`).send(userData).expect(200)
+      return request(app.app)
+        .put(`/api${usersRoute.path}/${userId}`)
+        .set("Cookie", getAdminCookies(mockedUser))
+        .send(userData)
+        .expect(200)
     })
   })
 
   describe("Delete user - [DELETE] /api/users/:id", () => {
     it("happy path", async () => {
       const userId = 1
-
       const usersRoute = new UserRoute()
       const userRepository = database.dataSource.getRepository(User)
+      const mockedUser = await getMockedUser()
 
       userRepository.findOne = jest.fn().mockReturnValue({
         id: userId,
@@ -132,7 +156,10 @@ describe("Testing Users routes", () => {
       })
 
       const app = new App([usersRoute])
-      return request(app.app).delete(`/api${usersRoute.path}/${userId}`).expect(200)
+      return request(app.app)
+        .delete(`/api${usersRoute.path}/${userId}`)
+        .set("Cookie", getAdminCookies(mockedUser))
+        .expect(200)
     })
   })
 })

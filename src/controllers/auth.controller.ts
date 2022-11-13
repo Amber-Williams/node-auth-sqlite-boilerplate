@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import dayjs, { ManipulateType } from "dayjs"
 
-import { ICreateUser, IUserPublic } from "@typings/users.type"
+import { ICreateUser, IUserPublic, IUser } from "@typings/users.type"
 import UserService from "@services/users.service"
 import AuthService from "@services/auth.service"
 import config from "@config"
@@ -62,7 +62,7 @@ class AuthController {
         username: user.username,
         email: user.email,
         role: user.role,
-      })
+      } as IUser)
       res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(201)
     } catch (error) {
@@ -79,7 +79,7 @@ class AuthController {
         username: user.username,
         email: user.email,
         role: user.role,
-      })
+      } as IUser)
       res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
       res.sendStatus(200)
     } catch (error) {
