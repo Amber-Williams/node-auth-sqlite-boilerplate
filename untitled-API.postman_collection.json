@@ -1,0 +1,275 @@
+{
+  "info": {
+    "_postman_id": "549ee029-6af1-471c-9792-533a966af732",
+    "name": "untitled-API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "16359735"
+  },
+  "item": [
+    {
+      "name": "ALL users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API_URL}}/users",
+          "host": ["{{API_URL}}"],
+          "path": ["users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ONE user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API_URL}}/users/:id",
+          "host": ["{{API_URL}}"],
+          "path": ["users", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{USER_ID}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update user",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\t\"password\": \"password\",\n\t\t\"role\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API_URL}}/users/:id",
+          "host": ["{{API_URL}}"],
+          "path": ["users", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{USER_ID}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete user",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{API_URL}}/users/:id",
+          "host": ["{{API_URL}}"],
+          "path": ["users", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{USER_ID}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create user",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"email\": \"111111@test.com\",\n\t\"username\": \"1111111\",\n\t\"password\": \"1111111\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API_URL}}/users",
+          "host": ["{{API_URL}}"],
+          "path": ["users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"email\": \"{{USER_EMAIL_ADMIN}}\",\n\t\"username\": \"username\",\n\t\"password\": \"{{USER_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API_URL}}/auth/register",
+          "host": ["{{API_URL}}"],
+          "path": ["auth", "register"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - admin",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "{{USER_EMAIL_ADMIN}}",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "{{USER_PASSWORD}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API_URL}}/auth/login",
+          "host": ["{{API_URL}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login - user",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "{{USER_EMAIL}}",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "{{USER_PASSWORD}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API_URL}}/auth/login",
+          "host": ["{{API_URL}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh tokens",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{API_URL}}/auth/refresh",
+          "host": ["{{API_URL}}"],
+          "path": ["auth", "refresh"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{API_URL}}/auth/logout",
+          "host": ["{{API_URL}}"],
+          "path": ["auth", "logout"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "API_URL",
+      "value": "http://localhost:3333/api",
+      "type": "string"
+    },
+    {
+      "key": "USER_ID_ADMIN",
+      "value": "09a5bac6-16e6-4d7b-9d8c-cc089a30569b",
+      "type": "string"
+    },
+    {
+      "key": "USER_EMAIL",
+      "value": "user-not-admin@test.com",
+      "type": "string"
+    },
+    {
+      "key": "USER_EMAIL_ADMIN",
+      "value": "user@test.com",
+      "type": "string"
+    },
+    {
+      "key": "USER_PASSWORD",
+      "value": "user",
+      "type": "string"
+    },
+    {
+      "key": "USER_ID",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
