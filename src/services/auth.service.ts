@@ -2,10 +2,12 @@ import * as jwt from "jsonwebtoken"
 
 import config from "@config"
 import User from "@models/user.model"
-import { HTTP400Error, HTTP401Error } from "@exceptions"
+import Tokens from "@models/tokens.model"
+import { HTTP400Error, HTTP401Error, HTTP500Error } from "@exceptions"
 import { isEmpty } from "@utils"
 import database from "@database"
-import { Roles, IUser } from "@typings/users.type"
+import { Roles, IUserPublic } from "@typings/users.type"
+import { ICreateAuthTokens } from "@typings/auth.type"
 
 class AuthService {
   private getScopes(role: Roles): Array<string> {
@@ -16,7 +18,7 @@ class AuthService {
     return scopes
   }
 
-  private createIdToken = (payload: { id: string; username: string; email: string }) => {
+  private createIdToken = (payload: { userId: string; username: string; email: string }) => {
     const { amount, unit } = config.auth.refreshTokenExpiry
     const idToken = jwt.sign(payload, config.auth.jwtSecret, {
       expiresIn: `${amount} ${unit}`,
@@ -32,7 +34,7 @@ class AuthService {
     return refreshToken
   }
 
-  public createAccessToken = (role: Roles) => {
+  private createAccessToken = (role: Roles) => {
     const payload = { scopes: this.getScopes(role) }
     const { amount, unit } = config.auth.accessTokenExpiry
     const accessToken = jwt.sign(payload, config.auth.jwtSecret, {
@@ -41,27 +43,41 @@ class AuthService {
     return accessToken
   }
 
-  public createAuthTokens({ id, username, email, role }: IUser) {
-    const refreshToken = this.createRefreshToken()
-    const accessToken = this.createAccessToken(role)
-    const idToken = this.createIdToken({ id, username, email })
-
-    return { accessToken, refreshToken, idToken }
-  }
-
-  public getUserTokenPayload = (token: string) => {
-    // also verifies payload
+  public createAuthTokens = async ({ userId, username, email, role }: ICreateAuthTokens) => {
     try {
-      const payload = jwt.verify(token, config.auth.jwtSecret, { complete: false }) as jwt.JwtPayload
-      return payload
-    } catch {
-      return false
+      const refresh = this.createRefreshToken()
+      const access = this.createAccessToken(role)
+      const identity = this.createIdToken({ userId, username, email })
+      const userTokens = await Tokens.findOne({ where: { userId } })
+      if (!userTokens) {
+        await Tokens.save({ userId, refresh, access, identity })
+        return { access, refresh, identity }
+      }
+
+      const updatedUserTokens = await userTokens.update({ userId, refresh, access, identity })
+      if (!updatedUserTokens) {
+        throw new HTTP500Error(500)
+      }
+
+      return { access, refresh, identity }
+    } catch (error) {
+      throw new Error(error)
     }
   }
 
-  public verifyRefreshToken = (refreshToken: string) => {
+  public removeAuthTokens = async (userId: string) => {
     try {
-      return Boolean(jwt.verify(refreshToken, config.auth.jwtSecret))
+      const userTokens = await Tokens.findOne({ where: { userId } })
+      userTokens.remove()
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  public verifyToken = (token: string): jwt.JwtPayload | false => {
+    // returns payload if valid
+    try {
+      return jwt.verify(token, config.auth.jwtSecret) as jwt.JwtPayload
     } catch {
       return false
     }
@@ -84,6 +100,22 @@ class AuthService {
     }
 
     return user
+  }
+
+  public getUserIdentityByToken = async (identity: string): Promise<IUserPublic> => {
+    const user = this.verifyToken(identity)
+    if (!user) {
+      throw new HTTP401Error()
+    }
+    return user as IUserPublic
+  }
+
+  public verifyTokens = async ({ userId, refresh, identity }: { userId: string; refresh: string; identity: string }) => {
+    const userTokens = await Tokens.findOne({ where: { userId, refresh, identity } })
+    if (!userTokens) {
+      throw new HTTP401Error()
+    }
+    return true
   }
 }
 
