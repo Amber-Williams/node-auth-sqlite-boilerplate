@@ -2,6 +2,7 @@ import "reflect-metadata"
 import { DataSource } from "typeorm"
 
 import User from "@models/user.model"
+import Tokens from "@models/tokens.model"
 import logger from "@logger"
 import config from "@config"
 import { serverReady } from "@server"
@@ -13,7 +14,7 @@ class Database {
     this.dataSource = new DataSource({
       type: "sqlite",
       database: `./main.${config.environment}.sqlite`,
-      entities: [User],
+      entities: [User, Tokens],
       logging: true,
       logger: config.debug ? "advanced-console" : logger,
       synchronize: true,

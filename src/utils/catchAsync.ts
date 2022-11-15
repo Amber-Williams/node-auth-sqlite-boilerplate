@@ -4,10 +4,10 @@ import { NextFunction, Request, Response } from "express"
 import BaseError from "@exceptions/BaseError"
 
 const catchAsync =
-  (func: (...args: any[]) => void) =>
+  (func: (...args: any[]) => Promise<void>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      return func(req, res, next)
+      return await func(req, res, next)
     } catch (error) {
       res.sendStatus((error as BaseError).httpCode)
     }

@@ -13,8 +13,8 @@ export default {
   auth: {
     jwtSecret: process.env.JWT_SECRET,
     accessTokenExpiry: {
-      unit: "hour",
-      amount: 1,
+      unit: "minute",
+      amount: 30,
     },
     refreshTokenExpiry: {
       unit: "day",

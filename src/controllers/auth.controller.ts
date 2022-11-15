@@ -1,18 +1,19 @@
 import { Request, Response } from "express"
 import dayjs, { ManipulateType } from "dayjs"
 
-import { ICreateUser, IUserPublic, IUser } from "@typings/users.type"
+import { ICreateUser, IUserPublic } from "@typings/users.type"
 import UserService from "@services/users.service"
 import AuthService from "@services/auth.service"
 import config from "@config"
 import catchAsync from "@utils/catchAsync"
+import { ICreateAuthTokens } from "@typings/auth.type"
 
 class AuthController {
   public userService = new UserService()
   public authService = new AuthService()
 
-  private addTokensToResponse = (res: Response, accessToken: string, idToken?: string, refreshToken?: string) => {
-    res.cookie("aid", accessToken, {
+  private addTokensToResponse = (res: Response, tokens: { access: string; identity?: string; refresh?: string }) => {
+    res.cookie("aid", tokens.access, {
       httpOnly: config.isProduction,
       secure: config.isProduction,
       expires: dayjs()
@@ -20,8 +21,8 @@ class AuthController {
         .toDate(),
     })
 
-    if (idToken) {
-      res.cookie("iid", idToken, {
+    if (tokens.identity) {
+      res.cookie("iid", tokens.identity, {
         httpOnly: config.isProduction,
         secure: config.isProduction,
         expires: dayjs()
@@ -30,8 +31,8 @@ class AuthController {
       })
     }
 
-    if (refreshToken) {
-      res.cookie("rid", refreshToken, {
+    if (tokens.refresh) {
+      res.cookie("rid", tokens.refresh, {
         httpOnly: config.isProduction,
         secure: config.isProduction,
         expires: dayjs()
@@ -57,14 +58,14 @@ class AuthController {
   public register = catchAsync(async (req: Request, res: Response) => {
     const userData: ICreateUser = req.body
     const user: IUserPublic = await this.userService.createUser(userData)
-    const { accessToken, refreshToken, idToken } = this.authService.createAuthTokens({
-      id: user.id,
+    const tokens = await this.authService.createAuthTokens({
+      userId: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
-    } as IUser)
+    } as ICreateAuthTokens)
 
-    res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
+    res = this.addTokensToResponse(res, tokens)
     res.sendStatus(201)
   })
 
@@ -73,51 +74,41 @@ class AuthController {
     const [email, password] = Buffer.from(b64auth, "base64").toString().split(":")
 
     const user = await this.authService.getUserIfPasswordMatch(email, password)
-    const { accessToken, refreshToken, idToken } = this.authService.createAuthTokens({
-      id: user.id,
+    const tokens = await this.authService.createAuthTokens({
+      userId: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
-    } as IUser)
-    res = this.addTokensToResponse(res, accessToken, idToken, refreshToken)
+    } as ICreateAuthTokens)
+    res = this.addTokensToResponse(res, tokens)
 
     res.sendStatus(200)
   })
 
   public logout = catchAsync(async (req: Request, res: Response) => {
+    const { id } = await this.authService.getUserIdentityByToken(req.cookies.iid)
+    await this.authService.removeAuthTokens(id)
     res = this.removeTokens(res, ["rid", "aid", "iid"])
     res.sendStatus(200)
   })
 
   public refreshAccessToken = catchAsync(async (req: Request, res: Response) => {
-    const validRefreshToken = this.authService.verifyRefreshToken(req.cookies.rid)
-    if (!validRefreshToken) {
-      throw new Error("Invalid refresh token")
-    }
+    const { id, email, username, role } = await this.authService.getUserIdentityByToken(req.cookies.iid)
+    await this.authService.verifyTokens({
+      userId: req.cookies.iid,
+      refresh: req.cookies.riid,
+      identity: req.cookies.iid,
+    })
+    const tokens = await this.authService.createAuthTokens({ userId: id, email, username, role } as ICreateAuthTokens)
 
-    const userTokenPayload = this.authService.getUserTokenPayload(req.cookies.iid)
-    if (!userTokenPayload) {
-      throw new Error("Invalid id token")
-    }
-
-    const user = await this.userService.findUserById(userTokenPayload.id)
-    if (!userTokenPayload) {
-      throw new Error("No user found")
-    }
-
-    const accessToken = this.authService.createAccessToken(user.role)
-    res = this.addTokensToResponse(res, accessToken)
+    res = this.addTokensToResponse(res, tokens)
     res.sendStatus(200)
   })
 
   public resetPassword = catchAsync(async (req: Request, res: Response) => {
-    const idTokenPayload = this.authService.getUserTokenPayload(req.cookies.iid)
-    if (!idTokenPayload) {
-      throw new Error("No user found")
-    }
-
+    const { email } = await this.authService.getUserIdentityByToken(req.cookies.iid)
     const { currentPassword, newPassword } = req.body
-    const user = await this.authService.getUserIfPasswordMatch(idTokenPayload.email, currentPassword)
+    const user = await this.authService.getUserIfPasswordMatch(email, currentPassword)
     user.update({ ...user, password: newPassword })
 
     res.sendStatus(200)

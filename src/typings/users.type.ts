@@ -6,7 +6,7 @@ export interface IUser {
   role: Roles
 }
 
-export type IUserPublic = Pick<IUser, "id" | "email" | "username" | "password" | "role">
+export type IUserPublic = Pick<IUser, "id" | "email" | "username" | "role">
 
 export type IUsers = IUser[]
 
