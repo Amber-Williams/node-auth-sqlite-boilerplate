@@ -1,13 +1,13 @@
 import * as jwt from "jsonwebtoken"
 
 import config from "@config"
-import User from "@models/user.model"
-import Tokens from "@models/tokens.model"
-import { HTTP400Error, HTTP401Error, HTTP500Error } from "@exceptions"
-import { isEmpty } from "@utils"
 import database from "@database"
-import { Roles, IUserPublic } from "@typings/users.type"
+import { HTTP400Error, HTTP401Error, HTTP500Error } from "@exceptions"
+import Tokens from "@models/tokens.model"
+import User from "@models/user.model"
 import { ICreateAuthTokens } from "@typings/auth.type"
+import { IUserPublic, Roles } from "@typings/users.type"
+import { isEmpty } from "@utils"
 
 class AuthService {
   private getScopes(role: Roles): Array<string> {
