@@ -2,11 +2,12 @@ import bcrypt from "bcrypt"
 import request from "supertest"
 
 import App from "@app"
-import { ICreateUser, Roles, IUser } from "@typings/users.type"
+import database from "@database"
 import User from "@models/user.model"
 import UserRoute from "@routes/users.route"
-import database from "@database"
 import AuthService from "@services/auth.service"
+import { ICreateAuthTokens } from "@typings/auth.type"
+import { ICreateUser, Roles } from "@typings/users.type"
 
 const userData: ICreateUser = {
   email: "test@email.com",
@@ -14,9 +15,9 @@ const userData: ICreateUser = {
   username: "tester",
 }
 
-const getMockedUser = async () => {
+const getMockedUser = async (): Promise<ICreateAuthTokens> => {
   return {
-    id: "1",
+    userId: "1",
     email: userData.email,
     password: await bcrypt.hash(userData.password, 10),
     username: userData.username,
@@ -24,10 +25,10 @@ const getMockedUser = async () => {
   }
 }
 
-const getAdminCookies = (user: IUser) => {
+const getAdminCookies = async (user: ICreateAuthTokens) => {
   const authService = new AuthService()
-  const { accessToken, refreshToken, idToken } = authService.createAuthTokens(user)
-  return [`rid=${refreshToken};aid=${accessToken};id=${idToken};`]
+  const { access, refresh, identity } = await authService.createAuthTokens(user)
+  return [`rid=${refresh};aid=${access};id=${identity};`]
 }
 
 describe("Testing Users routes", () => {
@@ -43,7 +44,7 @@ describe("Testing Users routes", () => {
       const app = new App([usersRoute])
       return request(app.app)
         .post(`/api${usersRoute.path}`)
-        .set("Cookie", getAdminCookies(mockedUser))
+        .set("Cookie", await getAdminCookies(mockedUser))
         .send(userData)
         .expect(201)
     })
@@ -77,7 +78,10 @@ describe("Testing Users routes", () => {
       ])
 
       const app = new App([usersRoute])
-      return request(app.app).get(`/api${usersRoute.path}`).set("Cookie", getAdminCookies(mockedUser)).expect(200)
+      return request(app.app)
+        .get(`/api${usersRoute.path}`)
+        .set("Cookie", await getAdminCookies(mockedUser))
+        .expect(200)
     })
   })
 
@@ -96,7 +100,10 @@ describe("Testing Users routes", () => {
       })
 
       const app = new App([usersRoute])
-      return request(app.app).get(`/api${usersRoute.path}/${userId}`).set("Cookie", getAdminCookies(mockedUser)).expect(200)
+      return request(app.app)
+        .get(`/api${usersRoute.path}/${userId}`)
+        .set("Cookie", await getAdminCookies(mockedUser))
+        .expect(200)
     })
   })
 
@@ -135,7 +142,7 @@ describe("Testing Users routes", () => {
       const app = new App([usersRoute])
       return request(app.app)
         .put(`/api${usersRoute.path}/${userId}`)
-        .set("Cookie", getAdminCookies(mockedUser))
+        .set("Cookie", await getAdminCookies(mockedUser))
         .send(userData)
         .expect(200)
     })
@@ -158,7 +165,7 @@ describe("Testing Users routes", () => {
       const app = new App([usersRoute])
       return request(app.app)
         .delete(`/api${usersRoute.path}/${userId}`)
-        .set("Cookie", getAdminCookies(mockedUser))
+        .set("Cookie", await getAdminCookies(mockedUser))
         .expect(200)
     })
   })
