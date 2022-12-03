@@ -2,13 +2,33 @@ name: PR Checks
 on: [pull_request]
 
 jobs:
-  app-build:
+  app-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["16.14.2"]
+        node-version: ["18.x"]
     steps:
       - uses: actions/checkout@v2
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-dependencies
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-build-${{ env.cache-name }}-
+            ${{ matrix.os }}-build-
+            ${{ matrix.os }}-
+
+      - name: Setup test config
+        run: |
+          touch .env
+          echo "PORT=3000" >> .env
+          echo "ENVIRONMENT=test" >> .env
+          echo "JWT_SECRET=secrets" >> .env
 
       - name: Setup node
         uses: actions/setup-node@v2
@@ -16,28 +36,43 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install project dependencies
-        run: |
-          yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --network-timeout 500000
 
       - name: Run checks
         run: |
-          yarn format
-          yarn lint
-          yarn build
+          yarn test:lint
+          yarn test:format
 
-  app-test:
-    needs: app-build
+      - name: Run tests
+        id: run-tests
+        run: yarn test
+
+  app-build:
+    needs: app-test
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["16.14.2"]
+        node-version: [18.x]
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup node
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Run tests
-        run: yarn test;
+      - name: Retrieve node modules from cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-dependencies
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-build-${{ env.cache-name }}-
+            ${{ matrix.os }}-build-
+            ${{ matrix.os }}-
+
+      - name: Run build
+        id: run-build
+        run: yarn build

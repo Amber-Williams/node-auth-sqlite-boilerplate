@@ -6,9 +6,9 @@ dotenv.config({
 })
 
 export default {
-  environment: process.env.ENVIRONMENT,
+  environment: process.env.ENVIRONMENT || "development",
   isProduction: process.env.ENVIRONMENT === "production",
-  port: process.env.PORT,
+  port: process.env.PORT || 3000,
   debug: false,
   auth: {
     jwtSecret: process.env.JWT_SECRET,

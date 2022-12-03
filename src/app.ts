@@ -1,13 +1,13 @@
-import http from "http"
-import express from "express"
 import cookieParser from "cookie-parser"
+import express from "express"
+import http from "http"
 
 import config from "@config"
 import logger from "@logger"
-import Routes from "@typings/routes.type"
-import apiLimiterMiddleware from "@middlewares/rate-limiter.middleware"
-import errorMiddleware from "@middlewares/error.middleware"
 import attachCookiesMiddleware from "@middlewares/cookies.middleware"
+import errorMiddleware from "@middlewares/error.middleware"
+import apiLimiterMiddleware from "@middlewares/rate-limiter.middleware"
+import Routes from "@typings/routes.type"
 
 class App {
   public app: express.Application
@@ -16,7 +16,7 @@ class App {
 
   constructor(routes: Routes[]) {
     this.app = express()
-    this.port = process.env.PORT || 3000
+    this.port = config.port
     this.server
 
     this.initializeMiddlewares()
