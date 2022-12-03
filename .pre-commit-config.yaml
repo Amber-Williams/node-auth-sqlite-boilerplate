@@ -5,7 +5,7 @@ repos:
     hooks:
       - id: format
         name: format
-        entry: sh -c 'yarn reformat'
+        entry: sh -c 'yarn test:format'
         language: system
         files: \.(ts)$
         stages: [commit]
@@ -13,7 +13,7 @@ repos:
     hooks:
       - id: lint
         name: lint
-        entry: sh -c 'yarn lint'
+        entry: sh -c 'yarn test:lint'
         language: system
         files: \.(ts)$
         stages: [commit]

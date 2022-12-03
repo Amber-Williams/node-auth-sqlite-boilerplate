@@ -6,17 +6,17 @@
   "author": "amber williams <amber@octopuswealth.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "scripts": {
     "develop": "NODE_ENV=development nodemon",
     "build": "tsc && tsc-alias",
     "start": "NODE_ENV=production node dist/index.js",
-    "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix",
-    "format": "yarn run prettier:base --check \"**/*.ts\"",
-    "reformat": "yarn run prettier:base --write \"**/*.ts\"",
+    "format:fix": "yarn run prettier:base --write \"**/*.ts\"",
     "prettier:base": "prettier --parser typescript",
+    "test:lint": "eslint . --ext .ts",
+    "test:format": "yarn run prettier:base --check \"**/*.ts\"",
     "test": "ENVIRONMENT=test jest --forceExit --detectOpenHandles --verbose"
   },
   "dependencies": {
@@ -37,7 +37,7 @@
     "@types/express": "4.17.13",
     "@types/jest": "29.1.1",
     "@types/jsonwebtoken": "8.5.9",
-    "@types/node": "16.11.59",
+    "@types/node": "18.11.0",
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
